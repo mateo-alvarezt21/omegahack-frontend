@@ -1,15 +1,33 @@
 "use client"
+import { useState, useEffect } from 'react';
 import { DocumentChartBarIcon, EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import CardInfo from "./components/cards-info";
-import { useState } from "react";
 import { data } from "./data";
 
-
-
-
 export default function Home() {
-
+  const [apiData, setApiData] = useState(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    // Hacer la solicitud a la API cuando el componente se monte
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/consumo');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const jsonData = await response.json();
+      console.log('Datos de la API:', jsonData); // Imprimir los datos en la consola
+      setApiData(jsonData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  console.log(apiData)
 
   const handleClick = () => {
     setOpen(!open);
@@ -82,7 +100,6 @@ export default function Home() {
                       )
                     )}
 
-
                     <CardInfo open={open} setOpen={setOpen} dataTable={item.data} />
                   </a>
                 </div>
@@ -91,7 +108,7 @@ export default function Home() {
           </li>
         ))}
       </ul>
-
     </>
   );
 }
+

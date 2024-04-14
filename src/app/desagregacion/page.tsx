@@ -1,11 +1,45 @@
-import { DocumentChartBarIcon, PhotoIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+"use client"
+import { useState } from 'react';
+import { DocumentChartBarIcon } from "@heroicons/react/24/outline";
 
 export default function Page() {
+  const [file, setFile] = useState(null);
 
+  const handleFileChange = (e: any) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    if (!file) {
+      alert("Please select a file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('csvFile', file);
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        alert('File uploaded successfully!');
+      } else {
+        alert('Failed to upload file.');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Error uploading file. Please try again later.');
+    }
+  };
 
   return (
     <>
-      <form>
+      <form onSubmit={handleSubmit}>
         <header>
           <div className="mx-auto max-w-7xl pb-5 px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Desagregación</h1>
@@ -23,8 +57,8 @@ export default function Page() {
                         htmlFor="file-upload"
                         className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                       >
-                        <span>Upload a file</span>
-                        <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                        <span>{file ? file.name : "Upload a file"}</span>
+                        <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} />
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
@@ -49,5 +83,5 @@ export default function Page() {
         </div>
       </form>
     </>
-  )
+  );
 }
